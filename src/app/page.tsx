@@ -1,20 +1,26 @@
 'use client';
 import { Card, H1, Stat } from "@/components/ui";
+import UserBar from "@/components/user-bar";
 
 export default function Home() {
-  const fakeThisWeek = { name: "Texas Open", purse: 9100000 };
+  const fakeThisWeek = { name: "Texas Open", purse: 9_100_000 };
   const standings = [
-    { name: "Hen", total: 6513775 },
-    { name: "Crock", total: 3644595 },
-    { name: "Mets", total: 2719622 },
-    { name: "Crampton", total: 1573068 },
-    { name: "Bamps", total: 924340 },
-    { name: "Kurn", total: 0 }
+    { name: "Hen", total: 6_513_775 },
+    { name: "Crock", total: 3_644_595 },
+    { name: "Mets", total: 2_719_622 },
+    { name: "Crampton", total: 1_573_068 },
+    { name: "Bamps", total: 924_340 },
+    { name: "Kurn", total: 0 },
   ];
   const money = (n: number) => `$${n.toLocaleString()}`;
 
   return (
     <div className="space-y-6">
+      {/* ✅ Shows Sign in (if logged out) or "Signed in as ..." + Sign out */}
+      <Card>
+        <UserBar />
+      </Card>
+
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="md:col-span-2">
           <H1>This week.</H1>
@@ -55,13 +61,6 @@ export default function Home() {
           <p className="muted">Spreadsheet-style view coming soon.</p>
         </Card>
       </div>
-
-      {/* Sign in link */}
-      <Card>
-        <a href="/auth" className="btn btn-primary w-full">
-          Sign in
-        </a>
-      </Card>
     </div>
   );
 }
