@@ -1,3 +1,4 @@
+'use client';
 import { motion } from "framer-motion";
 import { clsx } from "clsx";
 export function Card({children, className}:{children: React.ReactNode, className?:string}){
