@@ -1,8 +1,23 @@
-export default function CallbackPage() {
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
+
+export default function AuthCallback() {
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      // Touch session so Supabase commits it to storage, then bounce home.
+      await supabase.auth.getSession();
+      router.replace('/');
+    })();
+  }, [router]);
+
   return (
-    <main style={{ padding: 20 }}>
-      <h1>Auth Callback</h1>
-      <p>Processing your login...</p>
-    </main>
+    <div className="max-w-sm mx-auto">
+      <p className="muted">Signing you in…</p>
+    </div>
   );
 }
