@@ -4,6 +4,7 @@ import UserBar from "@/components/user-bar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import type { User } from "@supabase/supabase-js";
 
 export default function Home() {
   const fakeThisWeek = { name: "Texas Open", purse: 9_100_000 };
@@ -17,11 +18,12 @@ export default function Home() {
   ];
   const money = (n: number) => `$${n.toLocaleString()}`;
 
-  const [user, setUser] = useState(null);
+  // ✅ Typed state
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
+      setUser(data.user ?? null);
     });
   }, []);
 
