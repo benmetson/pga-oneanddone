@@ -1,3 +1,4 @@
+'use client';
 import { Card, H1, Button } from "@/components/ui";
 export default function PickPage(){
   const used = ["Scheffler", "McIlroy"];
