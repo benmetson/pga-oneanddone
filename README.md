@@ -14,3 +14,4 @@ This is a **zero-config** preview of the mobile-first UI.
 Once you're happy with the UI, we can add Supabase/Auth and real data.
 
 Generated 2025-08-08T10:52:15.059566 UTC.
+
