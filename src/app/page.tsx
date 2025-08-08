@@ -2,6 +2,8 @@
 import { Card, H1, Stat } from "@/components/ui";
 import UserBar from "@/components/user-bar";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Home() {
   const fakeThisWeek = { name: "Texas Open", purse: 9_100_000 };
@@ -15,9 +17,16 @@ export default function Home() {
   ];
   const money = (n: number) => `$${n.toLocaleString()}`;
 
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+  }, []);
+
   return (
     <div className="space-y-6">
-      {/* ✅ Shows Sign in (if logged out) or "Signed in as ..." + Sign out */}
       <Card>
         <UserBar />
       </Card>
@@ -62,11 +71,15 @@ export default function Home() {
           <p className="muted">Spreadsheet-style view coming soon.</p>
         </Card>
       </div>
-      <Card>
-  <Link href="/pick" className="btn btn-primary w-full">
-    Make my pick
-  </Link>
-</Card>
+
+      {/* ✅ Only show if logged in */}
+      {user && (
+        <Card>
+          <Link href="/pick" className="btn btn-primary w-full">
+            Make my pick
+          </Link>
+        </Card>
+      )}
     </div>
   );
 }
