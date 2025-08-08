@@ -1,5 +1,5 @@
 'use client';
-import { Card, H1 } from "@/components/ui";
+import { Card, H1, Stat } from "@/components/ui";
 export default function Leaderboard(){
   return (
     <Card>
