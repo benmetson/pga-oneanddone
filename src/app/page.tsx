@@ -1,7 +1,8 @@
 'use client';
 import { Card, H1, Stat } from "@/components/ui";
-export default async function Home() {
-  const fakeThisWeek = { name: "Texas Open", purse: 9100000, link: "#" };
+
+export default function Home() {
+  const fakeThisWeek = { name: "Texas Open", purse: 9100000 };
   const standings = [
     { name: "Hen", total: 6513775 },
     { name: "Crock", total: 3645955 },
@@ -11,12 +12,15 @@ export default async function Home() {
     { name: "Kurn", total: 0 }
   ];
   const money = (n:number)=> `$${n.toLocaleString()}`;
+
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="md:col-span-2">
           <H1>This week.</H1>
-          <div className="flex items-baseline gap-3"><span className="text-3xl font-semibold text-accent">{fakeThisWeek.name}</span></div>
+          <div className="flex items-baseline gap-3">
+            <span className="text-3xl font-semibold text-accent">{fakeThisWeek.name}</span>
+          </div>
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
             <Stat label="Purse" value={money(fakeThisWeek.purse)} />
             <Stat label="View leaderboard" value="Open" />
@@ -40,11 +44,11 @@ export default async function Home() {
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <H1>Last week results.</H1>
-          <p className="muted">Hook up to results CSV or DataGolf to populate.</p>
+          <p className="muted">Hook up CSV or DataGolf later.</p>
         </Card>
         <Card>
           <H1>Picks to date.</H1>
-          <p className="muted">Link to full spreadsheet-style view.</p>
+          <p className="muted">Spreadsheet-style view coming soon.</p>
         </Card>
       </div>
     </div>
