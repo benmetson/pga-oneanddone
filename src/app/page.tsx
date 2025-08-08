@@ -1,5 +1,5 @@
 'use client';
-import { Card, H1, Stat } from "@components/ui";
+import { Card, H1, Stat } from "@/components/ui";
 
 export default function Home() {
   const fakeThisWeek = { name: "Texas Open", purse: 9100000 };
