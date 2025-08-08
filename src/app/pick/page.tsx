@@ -1,4 +1,5 @@
 'use client';
+import { Button } from "@/components/ui";
 import { Card, H1, Stat } from "@/components/ui";
 
 export default function PickPage(){
