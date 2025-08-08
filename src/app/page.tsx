@@ -1,6 +1,7 @@
 'use client';
 import { Card, H1, Stat } from "@/components/ui";
 import UserBar from "@/components/user-bar";
+import Link from "next/link";
 
 export default function Home() {
   const fakeThisWeek = { name: "Texas Open", purse: 9_100_000 };
@@ -61,6 +62,11 @@ export default function Home() {
           <p className="muted">Spreadsheet-style view coming soon.</p>
         </Card>
       </div>
+      <Card>
+  <Link href="/pick" className="btn btn-primary w-full">
+    Make my pick
+  </Link>
+</Card>
     </div>
   );
 }
