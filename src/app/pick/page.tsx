@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { Card, H1 } from '@/components/ui';
 
@@ -14,8 +15,14 @@ type Golfer = { id: string; name: string };
 type Pick = { id: string; golfer_id: string; tournament_id: string };
 
 export default function PickPage() {
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // 👇 auth state
+  const [authChecked, setAuthChecked] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+
+  // data state
+  const [loading, setLoading] = useState(true);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [golfers, setGolfers] = useState<Golfer[]>([]);
   const [usedGolferIds, setUsedGolferIds] = useState<string[]>([]);
@@ -28,70 +35,78 @@ export default function PickPage() {
     return new Date(tournament.lock_at).getTime() <= Date.now();
   }, [tournament]);
 
-  // initial load
+  // ✅ Require login: if no user → redirect to /auth
   useEffect(() => {
     (async () => {
-      const [{ data: user }, { data: tRes }, { data: gRes }] = await Promise.all([
-        supabase.auth.getUser(),
+      const { data } = await supabase.auth.getUser();
+      const id = data.user?.id ?? null;
+      setUserId(id);
+      setAuthChecked(true);
+      if (!id) router.replace('/auth');
+    })();
+    // listen to auth changes (optional)
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      const id = session?.user?.id ?? null;
+      setUserId(id);
+      if (!id) router.replace('/auth');
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [router]);
+
+  // load data once we know we have a user
+  useEffect(() => {
+    if (!authChecked || !userId) return;
+    (async () => {
+      const [{ data: tRes }, { data: gRes }] = await Promise.all([
         supabase.from('tournaments').select('id,name,lock_at,season_id').eq('is_active', true).single(),
         supabase.from('golfers').select('id,name').order('name', { ascending: true })
       ]);
 
-      setUserId(user.user?.id ?? null);
       if (tRes) setTournament(tRes as any);
       if (gRes) setGolfers(gRes as any);
 
-      if (user.user && tRes?.id) {
-        // my current pick (if any)
+      if (tRes?.id) {
         const { data: pick } = await supabase
           .from('picks')
           .select('id,golfer_id,tournament_id')
-          .eq('user_id', user.user.id)
+          .eq('user_id', userId)
           .eq('tournament_id', tRes.id)
           .maybeSingle();
-
         if (pick) {
           setMyPick(pick as any);
           setSelected(pick.golfer_id);
         }
 
-        // golfers I've already used in this season
         const { data: used } = await supabase
           .from('picks')
           .select('golfer_id')
-          .eq('user_id', user.user.id)
+          .eq('user_id', userId)
           .eq('season_id', tRes.season_id);
-
         setUsedGolferIds((used ?? []).map((r: any) => r.golfer_id));
       }
 
       setLoading(false);
     })();
-  }, []);
+  }, [authChecked, userId]);
 
   async function submitPick() {
     setMessage('');
-    if (!userId) return setMessage('Please sign in first.');
+    if (!userId) return; // guard
     if (!tournament) return setMessage('No active tournament.');
     if (!selected) return setMessage('Pick a golfer.');
     if (locked) return setMessage('Picks are locked.');
 
     try {
       if (myPick) {
-        // allow change before lock
-        const { error } = await supabase
-          .from('picks')
-          .update({ golfer_id: selected })
-          .eq('id', myPick.id);
+        const { error } = await supabase.from('picks').update({ golfer_id: selected }).eq('id', myPick.id);
         if (error) throw error;
         setMessage('Pick updated ✅');
       } else {
-        const { error, data } = await supabase.from('picks').insert({
-          user_id: userId,
-          tournament_id: tournament.id,
-          golfer_id: selected
-          // season_id is set by trigger
-        }).select('*').single();
+        const { error, data } = await supabase
+          .from('picks')
+          .insert({ user_id: userId, tournament_id: tournament.id, golfer_id: selected })
+          .select('*')
+          .single();
         if (error) throw error;
         setMyPick(data as any);
         setMessage('Pick saved ✅');
@@ -101,6 +116,8 @@ export default function PickPage() {
     }
   }
 
+  if (!authChecked) return <div className="p-6">Checking sign-in…</div>;
+  if (!userId) return null; // we redirect to /auth above
   if (loading) return <div className="p-6">Loading…</div>;
   if (!tournament) return <div className="p-6">No active tournament configured yet.</div>;
 
@@ -133,8 +150,7 @@ export default function PickPage() {
             })}
           </select>
 
-          <button onClick={submitPick} disabled={locked || !selected}
-                  className="btn btn-primary mt-2">
+          <button onClick={submitPick} disabled={locked || !selected} className="btn btn-primary mt-2">
             {myPick ? 'Update my pick' : 'Submit pick'}
           </button>
 
