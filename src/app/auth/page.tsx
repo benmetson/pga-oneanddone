@@ -40,4 +40,4 @@ export default function AuthPage() {
       <p className="muted">{msg}</p>
     </div>
   );
-}
+} 
